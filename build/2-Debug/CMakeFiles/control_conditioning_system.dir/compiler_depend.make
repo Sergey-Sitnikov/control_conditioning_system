@@ -720,12 +720,8 @@ CMakeFiles/control_conditioning_system.dir/main.cpp.o: /home/ssv/code/control_co
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlineedit.h \
   /usr/include/x86_64-linux-gnu/qt5/QtGui/qtextcursor.h \
   /usr/include/x86_64-linux-gnu/qt5/QtGui/qtextformat.h \
-  /usr/include/x86_64-linux-gnu/qt5/QtCore/QSettings \
-  /usr/include/x86_64-linux-gnu/qt5/QtCore/qsettings.h \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QDialog \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qdialog.h \
-  /usr/include/x86_64-linux-gnu/qt5/QtCore/QRegularExpression \
-  /usr/include/x86_64-linux-gnu/qt5/QtCore/qregularexpression.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QDebug \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qdebug.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qtextstream.h \
@@ -1075,8 +1071,6 @@ CMakeFiles/control_conditioning_system.dir/mainwindow.cpp.o: /home/ssv/code/cont
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qdebug.h:
 
-/usr/include/x86_64-linux-gnu/qt5/QtCore/QRegularExpression:
-
 /usr/include/x86_64-linux-gnu/qt5/QtGui/qtextcursor.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlineedit.h:
@@ -1183,8 +1177,6 @@ CMakeFiles/control_conditioning_system.dir/mainwindow.cpp.o: /home/ssv/code/cont
 
 /usr/include/c++/13/bits/stl_list.h:
 
-/usr/include/x86_64-linux-gnu/qt5/QtCore/qsettings.h:
-
 /usr/include/x86_64-linux-gnu/qt5/QtGui/qinputmethod.h:
 
 /usr/include/c++/13/list:
@@ -1282,8 +1274,6 @@ CMakeFiles/control_conditioning_system.dir/mainwindow.cpp.o: /home/ssv/code/cont
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qcoreevent.h:
 
 /usr/include/c++/13/cstdio:
-
-/usr/include/x86_64-linux-gnu/qt5/QtCore/QSettings:
 
 /usr/include/c++/13/ext/string_conversions.h:
 
