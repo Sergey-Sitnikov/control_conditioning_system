@@ -9,7 +9,7 @@
 #include <QLineEdit>
 #include <QSettings>
 #include <QDialog>
-#include <QRegularExpression>
+//#include <QRegularExpression>
 #include <QDebug>
 
 class SettingsDialog : public QDialog {
@@ -69,8 +69,9 @@ private slots:
     void loadSettings();
 
 private:
-    QLabel *unittemperature;
-    double *temp;
+    QString unittemperature = "°C";
+    double temp = 0;
+    QLabel *temperatureLabel;
     QLabel *humidityLabel;
     QLabel *pressureLabel;
     QComboBox *tempScaleCombo;
@@ -80,15 +81,16 @@ private:
     QGraphicsView *graphicsView;
     QGraphicsScene *scene;
 
-    void updateLabels(float temp, float humidity, float pressure, const QString &scale);
-    float convertTemperature(float temp, const QString &fromScale, const QString &toScale);
+    void updateLabels(double temp, float humidity, float pressure, const QString &scale);
+    void convertTemperature(const QString &toScale);
 };
 
 HVACControl::HVACControl(QWidget *parent) : QMainWindow(parent), acStatus(false) {
     QWidget *centralWidget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(centralWidget);
 
-    temperatureLabel = new QLabel("Температура: 0 °C", this);
+  //  unittemperature = "°C";
+    temperatureLabel = new QLabel("Температура: " + QString::number(temp) + " " + unittemperature, this);
     humidityLabel = new QLabel("Влажность: 0 %", this);
     pressureLabel = new QLabel("Давление: 0 Pa", this);
 
@@ -130,56 +132,56 @@ void HVACControl::toggleAC() {
 }
 
 void HVACControl::changeScale(const QString &scale) {
-    // Получаем текущую температуру и её единицу измерения
-   // QString currentScale = tempScaleCombo->currentText();
+    // Сначала конвертируем текущую температуру, затем обновляем метки
+    //std::printf(QString::number(temp));
+     qDebug() << "Температура1:" << QString::number(temp);
 
-    // Извлечение числа из строки с помощью регулярных выражений
-    QRegularExpression regex("([-+]?[0-9]*\\.?[0-9]+)");
-    QRegularExpressionMatch match = regex.match(temperatureLabel->text());
-    float temp = match.hasMatch() ? match.captured(1).toFloat() : 0.0f;
-
-    // Конвертируем температуру в новую единицу на основе текущей и целевой единицы
-    float convertedTemp = convertTemperature(temp, currentScale, scale);
-
-    // Обновляем метку температуры
-    updateLabels(convertedTemp, humidityLabel->text().split(" ")[1].toFloat(),
-                 pressureLabel->text().split(" ")[1].toFloat(), scale);
-
-    // Устанавливаем выбранную единицу измерения
-    tempScaleCombo->setCurrentText(scale);
-}
-
-float HVACControl::convertTemperature(float temp, const QString &fromScale, const QString &toScale) {
-    // Приводим строки к нижнему регистру для обеспечения сопоставимости
-    QString from = fromScale.toLower();
-    QString to = toScale.toLower();
-
-    qDebug() << "Converting from:" << from << "to:" << to << "with temp:" << temp; // Для отладки
-
-    if (from == "celsius") {
-        if (to == "fahrenheit") {
-            return (temp * 9.0 / 5.0) + 32;
-        } else if (to == "kelvin") {
-            return temp + 273.15;
-        }
-    } else if (from == "fahrenheit") {
-        if (to == "celsius") {
-            return (temp - 32) * 5.0 / 9.0;
-        } else if (to == "kelvin") {
-            return (temp - 32) * 5.0 / 9.0 + 273.15;
-        }
-    } else if (from == "kelvin") {
-        if (to == "celsius") {
-            return temp - 273.15;
-        } else if (to == "fahrenheit") {
-            return (temp - 273.15) * 9.0 / 5.0 + 32;
-        }
+    if (scale == "Celsius") {
+        convertTemperature("°C");
+    } else if (scale == "Fahrenheit") {
+        convertTemperature("°F");
+    } else if (scale == "Kelvin") {
+        convertTemperature("K");
     }
 
-    return temp; // Возвращаем исходное значение, если никаких преобразований не требуется
+    updateLabels(temp, humidityLabel->text().split(" ")[1].toFloat(),
+                 pressureLabel->text().split(" ")[1].toFloat(), unittemperature);
+      qDebug() << "Температура2:" << QString::number(temp);
 }
 
-void HVACControl::updateLabels(float temp, float humidity, float pressure, const QString &scale) {
+void HVACControl::convertTemperature(const QString &toScale) {
+    double originalTemp = temp;
+    if (unittemperature == "°C") {
+        if (toScale == "°F") {
+            temp = (originalTemp * 9.0 / 5.0) + 32;
+            unittemperature = "°F";
+        } else if (toScale == "K") {
+            temp = originalTemp + 273.15;
+            unittemperature = "K";
+        }
+    } else if (unittemperature == "°F") {
+        if (toScale == "°C") {
+            temp = (originalTemp - 32) * 5.0 / 9.0;
+            unittemperature = "°C";
+        } else if (toScale == "K") {
+            temp = (originalTemp - 32) * 5.0 / 9.0 + 273.15;
+            unittemperature = "K";
+        }
+    } else if (unittemperature == "K") {
+        if (toScale == "°C") {
+            temp = originalTemp - 273.15;
+            unittemperature = "°C";
+        } else if (toScale == "°F") {
+            temp = (originalTemp - 273.15) * 9.0 / 5.0 + 32;
+            unittemperature = "°F";
+        }
+    }
+    // Обновляем метки после конверсии
+    updateLabels(temp, humidityLabel->text().split(" ")[1].toFloat(),
+                 pressureLabel->text().split(" ")[1].toFloat(), unittemperature);
+}
+
+void HVACControl::updateLabels(double temp, float humidity, float pressure, const QString &scale) {
     qDebug() << "Updating labels with Temperature:" << temp << "Humidity:" << humidity << "Pressure:" << pressure << "Scale:" << scale;
 
     temperatureLabel->setText(QString("Температура: %1 %2").arg(temp, 0, 'f', 2).arg(scale));
@@ -190,10 +192,10 @@ void HVACControl::updateLabels(float temp, float humidity, float pressure, const
 void HVACControl::openSettings() {
     SettingsDialog dialog(this);
     if (dialog.exec() == QDialog::Accepted) {
-        float temperature = dialog.getTemperature();
+        temp = dialog.getTemperature();
         float humidity = dialog.getHumidity();
         float pressure = dialog.getPressure();
-        updateLabels(temperature, humidity, pressure, tempScaleCombo->currentText());
+        updateLabels(temp, humidity, pressure, "°C");
     }
 }
 
