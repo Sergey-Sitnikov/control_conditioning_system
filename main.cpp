@@ -12,10 +12,18 @@
 #include <QDebug>
 #include <QSlider> // Подключение QSlider
 
+/**
+ * @class ResolutionDialog
+ * @brief Класс диалога для выбора разрешения экрана и темы приложения.
+ */
 class ResolutionDialog : public QDialog {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Конструктор для ResolutionDialog.
+     * @param parent Указатель на родительский виджет.
+     */
     ResolutionDialog(QWidget *parent = nullptr) : QDialog(parent) {
         setWindowTitle("Выбор разрешения");
         setModal(true);
@@ -23,7 +31,7 @@ public:
 
         QVBoxLayout *layout = new QVBoxLayout(this);
 
-        // Resolution buttons
+        // Кнопки выбора разрешения
         QPushButton *res1Button = new QPushButton("1024x768", this);
         connect(res1Button, &QPushButton::clicked, this, [this]() {
             emit resolutionChosen(1024, 768, themeComboBox->currentText());
@@ -36,7 +44,7 @@ public:
             accept();
         });
 
-        // Theme selection combo box
+        // Комбинированный список для выбора темы
         themeComboBox = new QComboBox(this);
         themeComboBox->addItems({"Light", "Dark"});
 
@@ -48,16 +56,30 @@ public:
     }
 
 signals:
-    void resolutionChosen(int width, int height, QString theme); // Emit theme choice too
+    /**
+     * @brief Сигнал для уведомления о выборе разрешения.
+     * @param width Ширина разрешения.
+     * @param height Высота разрешения.
+     * @param theme Тема приложения.
+     */
+    void resolutionChosen(int width, int height, QString theme);
 
 private:
-    QComboBox *themeComboBox; // Combo box to select theme
+    QComboBox *themeComboBox; ///< Комбинированный список для выбора темы
 };
 
+/**
+ * @class SettingsDialog
+ * @brief Класс диалога настроек для ввода параметров HVAC.
+ */
 class SettingsDialog : public QDialog {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Конструктор для SettingsDialog.
+     * @param parent Указатель на родительский виджет.
+     */
     SettingsDialog(QWidget *parent = nullptr) : QDialog(parent) {
         setWindowTitle("Настройки");
         setModal(false);
@@ -81,6 +103,10 @@ public:
         setLayout(layout);
     }
 
+    /**
+     * @brief Метод для обновления значений температуры, влажности и давления.
+     * Проверяет валидность данных перед их отправкой.
+     */
     void updateValues() {
         bool tempOk, humidityOk, pressureOk;
         float tempValue = temperatureInput->text().toFloat(&tempOk);
@@ -105,46 +131,71 @@ public:
     }
 
 signals:
+    /**
+     * @brief Сигнал для уведомления об обновлении значений.
+     * @param temp Температура.
+     * @param humidity Влажность.
+     * @param pressure Давление.
+     */
     void valuesUpdated(float temp, int humidity, float pressure);
 
 private:
-    QLineEdit *temperatureInput;
-    QLineEdit *humidityInput;
-    QLineEdit *pressureInput;
+    QLineEdit *temperatureInput; ///< Поле для ввода температуры
+    QLineEdit *humidityInput;    ///< Поле для ввода влажности
+    QLineEdit *pressureInput;    ///< Поле для ввода давления
 };
 
+/**
+ * @class HVACControl
+ * @brief Главный класс управления HVAC.
+ */
 class HVACControl : public QMainWindow {
     Q_OBJECT
 
 public:
-    HVACControl(int width, int height, QString theme,  QWidget *parent = nullptr);
+    /**
+     * @brief Конструктор для HVACControl.
+     * @param width Ширина окна.
+     * @param height Высота окна.
+     * @param theme Тема приложения.
+     * @param parent Указатель на родительский виджет.
+     */
+    HVACControl(int width, int height, QString theme, QWidget *parent = nullptr);
 
 private slots:
     void toggleAC();
     void changeScaleTemperature(const QString &scale);
     void changeScalePressure(const QString &scale);
     void updateFromSettings(float temp, int humidity, float pressure);
-    void changeAirDirection(int angle); // Новый слот для изменения направления воздуха
+    void changeAirDirection(int angle); ///< Новый слот для изменения направления воздуха
 
 private:
-    QString unittemperature = "°C";
-    double temp = 0;
-    QLabel *temperatureLabel;
-    int humidity = 0;
-    QLabel *humidityLabel;
-    QString unitpressure = "Pa";
-    double pressure = 0;
-    QLabel *pressureLabel;
-    QComboBox *tempScaleCombo;
-    QComboBox *pressureScaleCombo;
-    QPushButton *toggleButton;
-    bool acStatus;
-    QGraphicsView *graphicsView;
-    QGraphicsScene *scene;
-    SettingsDialog *settingsDialog;
-    QSlider *airDirectionSlider; // Слайдер для управления направлением
-    QLabel *airDirectionLabel; // Метка для отображения направления
+    QString unittemperature = "°C"; ///< единицы измерения температуры
+    double temp = 0;                ///< температура
+    QLabel *temperatureLabel;       ///< метка для температуры
+    int humidity = 0;               ///< влажность
+    QLabel *humidityLabel;          ///< метка для влажности
+    QString unitpressure = "Pa";    ///< единицы измерения давления
+    double pressure = 0;            ///< давление
+    QLabel *pressureLabel;          ///< метка для давления
+    QComboBox *tempScaleCombo;      ///< комбинированный список для выбора масштаба температуры
+    QComboBox *pressureScaleCombo;  ///< комбинированный список для выбора масштаба давления
+    QPushButton *toggleButton;      ///< Кнопка для включения/выключения кондиционера
+    bool acStatus;                  ///< Статус кондиционера
+    QGraphicsView *graphicsView;    ///< Виджет для рисования графики
+    QGraphicsScene *scene;          ///< Сцена для графики
+    SettingsDialog *settingsDialog; ///< диалог настроек
+    QSlider *airDirectionSlider;     ///< Слайдер для управления направлением
+    QLabel *airDirectionLabel;       ///< Метка для отображения направления
 
+    /**
+     * @brief Обновляет метки с текущими значениями.
+     * @param temp Температура.
+     * @param humidity Влажность.
+     * @param pressure Давление.
+     * @param scaleT Масштаб для температуры.
+     * @param scaleP Масштаб для давления.
+     */
     void updateLabels(double temp, int humidity, float pressure, const QString &scaleT, const QString &scaleP);
     void convertTemperature(const QString &toScale);
     void convertPressure(const QString &toScale);
@@ -154,13 +205,12 @@ HVACControl::HVACControl(int width, int height, QString theme, QWidget *parent)
     : QMainWindow(parent), acStatus(false) {
     setFixedSize(width, height);
 
-    // Set the style based on the selected theme
+    // Установка стиля в зависимости от выбранной темы
     if (theme == "Light") {
         setStyleSheet("background-color: #ffffff; color: black;");
     } else {
         setStyleSheet("background-color: #2e2e2e; color: white;");
     }
-
 
     QWidget *centralWidget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(centralWidget);
@@ -299,6 +349,12 @@ void HVACControl::changeAirDirection(int angle) {
     qDebug() << "Изменено направление подачи воздуха на:" << angle << "градусов.";
 }
 
+/**
+ * @brief Главная функция приложения.
+ * @param argc Количество аргументов командной строки.
+ * @param argv Аргументы командной строки.
+ * @return Код завершения приложения.
+ */
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
