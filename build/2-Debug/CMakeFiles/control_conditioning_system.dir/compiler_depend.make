@@ -730,6 +730,8 @@ CMakeFiles/control_conditioning_system.dir/main.cpp.o: /home/ssv/code/control_co
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qtextstream.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qset.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qcontiguouscache.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QSlider \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qslider.h \
   control_conditioning_system_autogen/include/main.moc
 
 CMakeFiles/control_conditioning_system.dir/mainwindow.cpp.o: /home/ssv/code/control_conditioning_system/mainwindow.cpp \
@@ -1779,6 +1781,8 @@ control_conditioning_system_autogen/include/main.moc:
 /usr/include/c++/13/bits/ios_base.h:
 
 /usr/include/x86_64-linux-gnu/bits/uintn-identity.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QSlider:
 
 /usr/include/x86_64-linux-gnu/bits/select.h:
 

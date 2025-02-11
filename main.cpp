@@ -19,30 +19,39 @@ public:
     ResolutionDialog(QWidget *parent = nullptr) : QDialog(parent) {
         setWindowTitle("Выбор разрешения");
         setModal(true);
-
         setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
         QVBoxLayout *layout = new QVBoxLayout(this);
 
+        // Resolution buttons
         QPushButton *res1Button = new QPushButton("1024x768", this);
         connect(res1Button, &QPushButton::clicked, this, [this]() {
-            emit resolutionChosen(1024, 768);
+            emit resolutionChosen(1024, 768, themeComboBox->currentText());
             accept();
         });
 
         QPushButton *res2Button = new QPushButton("800x600", this);
         connect(res2Button, &QPushButton::clicked, this, [this]() {
-            emit resolutionChosen(800, 600);
+            emit resolutionChosen(800, 600, themeComboBox->currentText());
             accept();
         });
 
+        // Theme selection combo box
+        themeComboBox = new QComboBox(this);
+        themeComboBox->addItems({"Light", "Dark"});
+
+        layout->addWidget(new QLabel("Выберите тему:"));
+        layout->addWidget(themeComboBox);
         layout->addWidget(res1Button);
         layout->addWidget(res2Button);
         setLayout(layout);
     }
 
 signals:
-    void resolutionChosen(int width, int height);
+    void resolutionChosen(int width, int height, QString theme); // Emit theme choice too
+
+private:
+    QComboBox *themeComboBox; // Combo box to select theme
 };
 
 class SettingsDialog : public QDialog {
@@ -108,7 +117,7 @@ class HVACControl : public QMainWindow {
     Q_OBJECT
 
 public:
-    HVACControl(int width, int height, QWidget *parent = nullptr);
+    HVACControl(int width, int height, QString theme,  QWidget *parent = nullptr);
 
 private slots:
     void toggleAC();
@@ -141,9 +150,17 @@ private:
     void convertPressure(const QString &toScale);
 };
 
-HVACControl::HVACControl(int width, int height, QWidget *parent)
+HVACControl::HVACControl(int width, int height, QString theme, QWidget *parent)
     : QMainWindow(parent), acStatus(false) {
     setFixedSize(width, height);
+
+    // Set the style based on the selected theme
+    if (theme == "Light") {
+        setStyleSheet("background-color: #ffffff; color: black;");
+    } else {
+        setStyleSheet("background-color: #2e2e2e; color: white;");
+    }
+
 
     QWidget *centralWidget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(centralWidget);
@@ -286,8 +303,8 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     ResolutionDialog resDialog;
-    QObject::connect(&resDialog, &ResolutionDialog::resolutionChosen, [&](int width, int height) {
-        HVACControl *window = new HVACControl(width, height);
+    QObject::connect(&resDialog, &ResolutionDialog::resolutionChosen, [&](int width, int height, QString theme) {
+        HVACControl *window = new HVACControl(width, height, theme, nullptr);
         window->show();
     });
 
