@@ -10,7 +10,7 @@
 #include <QDialog>
 #include <QMessageBox>
 #include <QDebug>
-#include <QSlider> // Подключение QSlider
+#include <QSlider>
 
 /**
  * @class ResolutionDialog
@@ -20,10 +20,6 @@ class ResolutionDialog : public QDialog {
     Q_OBJECT
 
 public:
-    /**
-     * @brief Конструктор для ResolutionDialog.
-     * @param parent Указатель на родительский виджет.
-     */
     ResolutionDialog(QWidget *parent = nullptr) : QDialog(parent) {
         setWindowTitle("Выбор разрешения");
         setModal(true);
@@ -31,7 +27,6 @@ public:
 
         QVBoxLayout *layout = new QVBoxLayout(this);
 
-        // Кнопки выбора разрешения
         QPushButton *res1Button = new QPushButton("1024x768", this);
         connect(res1Button, &QPushButton::clicked, this, [this]() {
             emit resolutionChosen(1024, 768, themeComboBox->currentText());
@@ -44,7 +39,6 @@ public:
             accept();
         });
 
-        // Комбинированный список для выбора темы
         themeComboBox = new QComboBox(this);
         themeComboBox->addItems({"Light", "Dark"});
 
@@ -56,16 +50,10 @@ public:
     }
 
 signals:
-    /**
-     * @brief Сигнал для уведомления о выборе разрешения.
-     * @param width Ширина разрешения.
-     * @param height Высота разрешения.
-     * @param theme Тема приложения.
-     */
     void resolutionChosen(int width, int height, QString theme);
 
 private:
-    QComboBox *themeComboBox; ///< Комбинированный список для выбора темы
+    QComboBox *themeComboBox; // Выбор темы
 };
 
 /**
@@ -76,10 +64,6 @@ class SettingsDialog : public QDialog {
     Q_OBJECT
 
 public:
-    /**
-     * @brief Конструктор для SettingsDialog.
-     * @param parent Указатель на родительский виджет.
-     */
     SettingsDialog(QWidget *parent = nullptr) : QDialog(parent) {
         setWindowTitle("Настройки");
         setModal(false);
@@ -103,17 +87,12 @@ public:
         setLayout(layout);
     }
 
-    /**
-     * @brief Метод для обновления значений температуры, влажности и давления.
-     * Проверяет валидность данных перед их отправкой.
-     */
     void updateValues() {
         bool tempOk, humidityOk, pressureOk;
         float tempValue = temperatureInput->text().toFloat(&tempOk);
         int humidityValue = humidityInput->text().toInt(&humidityOk);
         float pressureValue = pressureInput->text().toFloat(&pressureOk);
 
-        // Проверка валидности введенных данных
         if (!tempOk || tempValue < -50 || tempValue > 70) {
             QMessageBox::warning(this, "Неверный ввод", "Пожалуйста, введите допустимую температуру.");
             return;
@@ -131,18 +110,12 @@ public:
     }
 
 signals:
-    /**
-     * @brief Сигнал для уведомления об обновлении значений.
-     * @param temp Температура.
-     * @param humidity Влажность.
-     * @param pressure Давление.
-     */
     void valuesUpdated(float temp, int humidity, float pressure);
 
 private:
-    QLineEdit *temperatureInput; ///< Поле для ввода температуры
-    QLineEdit *humidityInput;    ///< Поле для ввода влажности
-    QLineEdit *pressureInput;    ///< Поле для ввода давления
+    QLineEdit *temperatureInput; // Поле ввода температуры
+    QLineEdit *humidityInput;    // Поле ввода влажности
+    QLineEdit *pressureInput;    // Поле ввода давления
 };
 
 /**
@@ -153,13 +126,6 @@ class HVACControl : public QMainWindow {
     Q_OBJECT
 
 public:
-    /**
-     * @brief Конструктор для HVACControl.
-     * @param width Ширина окна.
-     * @param height Высота окна.
-     * @param theme Тема приложения.
-     * @param parent Указатель на родительский виджет.
-     */
     HVACControl(int width, int height, QString theme, QWidget *parent = nullptr);
 
 private slots:
@@ -167,35 +133,29 @@ private slots:
     void changeScaleTemperature(const QString &scale);
     void changeScalePressure(const QString &scale);
     void updateFromSettings(float temp, int humidity, float pressure);
-    void changeAirDirection(int angle); ///< Новый слот для изменения направления воздуха
+    void changeAirDirection(int angle); // Изменение направления воздуха
 
 private:
-    QString unittemperature = "°C"; ///< единицы измерения температуры
-    double temp = 0;                ///< температура
-    QLabel *temperatureLabel;       ///< метка для температуры
-    int humidity = 0;               ///< влажность
-    QLabel *humidityLabel;          ///< метка для влажности
-    QString unitpressure = "Pa";    ///< единицы измерения давления
-    double pressure = 0;            ///< давление
-    QLabel *pressureLabel;          ///< метка для давления
-    QComboBox *tempScaleCombo;      ///< комбинированный список для выбора масштаба температуры
-    QComboBox *pressureScaleCombo;  ///< комбинированный список для выбора масштаба давления
-    QPushButton *toggleButton;      ///< Кнопка для включения/выключения кондиционера
-    bool acStatus;                  ///< Статус кондиционера
-    QGraphicsView *graphicsView;    ///< Виджет для рисования графики
-    QGraphicsScene *scene;          ///< Сцена для графики
-    SettingsDialog *settingsDialog; ///< диалог настроек
-    QSlider *airDirectionSlider;     ///< Слайдер для управления направлением
-    QLabel *airDirectionLabel;       ///< Метка для отображения направления
+    QString unittemperature = "°C"; // Единицы измерения температуры
+    double temp = 0;                // Температура
+    QLabel *temperatureLabel;       // Метка для температуры
+    int humidity = 0;               // Влажность
+    QLabel *humidityLabel;          // Метка для влажности
+    QString unitpressure = "Pa";    // Единицы измерения давления
+    double pressure = 0;            // Давление
+    QLabel *pressureLabel;          // Метка для давления
+    QComboBox *tempScaleCombo;      // Комбинированный список для масштабирования температуры
+    QComboBox *pressureScaleCombo;  // Комбинированный список для масштабирования давления
+    QPushButton *toggleButton;      // Кнопка для включения/выключения кондиционера
+    bool acStatus;                  // Статус кондиционера
+    QGraphicsView *graphicsView;    // Виджет для рисования графики
+    QGraphicsScene *scene;          // Сцена для графики
+    SettingsDialog *settingsDialog; // Диалог настроек
+    QSlider *airDirectionSlider;     // Горизонтальный слайдер направления воздуха
+    QSlider *airDirectionSliderVertical; // Вертикальный слайдер направления воздуха
+    QLabel *airDirectionLabel;       // Метка для отображения направления
+    QHBoxLayout *directionLayout;    // Новый layout для направления
 
-    /**
-     * @brief Обновляет метки с текущими значениями.
-     * @param temp Температура.
-     * @param humidity Влажность.
-     * @param pressure Давление.
-     * @param scaleT Масштаб для температуры.
-     * @param scaleP Масштаб для давления.
-     */
     void updateLabels(double temp, int humidity, float pressure, const QString &scaleT, const QString &scaleP);
     void convertTemperature(const QString &toScale);
     void convertPressure(const QString &toScale);
@@ -203,9 +163,9 @@ private:
 
 HVACControl::HVACControl(int width, int height, QString theme, QWidget *parent)
     : QMainWindow(parent), acStatus(false) {
+
     setFixedSize(width, height);
 
-    // Установка стиля в зависимости от выбранной темы
     if (theme == "Light") {
         setStyleSheet("background-color: #ffffff; color: black;");
     } else {
@@ -214,6 +174,9 @@ HVACControl::HVACControl(int width, int height, QString theme, QWidget *parent)
 
     QWidget *centralWidget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(centralWidget);
+
+    // Инициализируем directionLayout
+    directionLayout = new QHBoxLayout();
 
     temperatureLabel = new QLabel("Температура: " + QString::number(temp) + " " + unittemperature, this);
     humidityLabel = new QLabel("Влажность: " + QString::number(humidity) + " %", this);
@@ -237,14 +200,49 @@ HVACControl::HVACControl(int width, int height, QString theme, QWidget *parent)
     connect(toggleButton, &QPushButton::clicked, this, &HVACControl::toggleAC);
     layout->addWidget(toggleButton);
 
-    // Новая часть: настройка слайдера для направления воздуха
     airDirectionSlider = new QSlider(Qt::Horizontal, this);
-    airDirectionSlider->setRange(0, 360); // Устанавливаем диапазон от 0 до 360 градусов
+    airDirectionSlider->setRange(0, 180);
     connect(airDirectionSlider, &QSlider::valueChanged, this, &HVACControl::changeAirDirection);
-    layout->addWidget(new QLabel("Направление подачи воздуха (градусы):", this)); // Метка
-    layout->addWidget(airDirectionSlider); // Добавляем слайдер
+    // Горизонтальный слайдер
+    airDirectionSlider->setStyleSheet("QSlider::groove:horizontal {"
+                                      "background: lightgray;"
+                                      "height: 10px;"
+                                      "}"
+                                      "QSlider::handle:horizontal {"
+                                      "background: green;"
+                                      "border: 1px solid #5c5c5c;"
+                                      "width: 50px;"  // Ширина бегунка
+                                      "height: 50px;" // Высота бегунка
+                                      "margin: -20px 0;" // Обратите внимание, чтобы обеспечить корректное визуальное отображение
+                                      "}");
 
-    airDirectionLabel = new QLabel("Текущее направление: 0°", this); // Метка для отображения текущего направления
+    // Вертикальный слайдер
+    airDirectionSliderVertical = new QSlider(Qt::Vertical, this);
+    airDirectionSliderVertical->setRange(0, 90);
+    connect(airDirectionSliderVertical, &QSlider::valueChanged, this, &HVACControl::changeAirDirection);
+    airDirectionSliderVertical->setStyleSheet("QSlider::groove:vertical {"
+                                              "background: lightgray;"
+                                              "width: 10px;"  // Ширина грива, меняйте в зависимости от дизайна
+                                              "}"
+                                              "QSlider::handle:vertical {"
+                                              "background: green;"
+                                              "border: 1px solid #5c5c5c;"
+                                              "width: 50px;"   // Ширина бегунка равна высоте
+                                              "height: 50px;"  // Высота бегунка
+                                              "margin: -20px 0;" // Обратите внимание на корректные отступы
+                                              "}");
+
+
+
+    // Добавляем метки и слайдеры в directionLayout
+    directionLayout->addWidget(new QLabel("Горизонтальное направление (градусы):", this));
+    directionLayout->addWidget(airDirectionSlider);
+    directionLayout->addWidget(new QLabel("Вертикальное направление (градусы):", this));
+    directionLayout->addWidget(airDirectionSliderVertical);
+
+    layout->addLayout(directionLayout); // Добавляем directionLayout в главный layout
+
+    airDirectionLabel = new QLabel("Текущее направление: 0°", this);
     layout->addWidget(airDirectionLabel);
 
     graphicsView = new QGraphicsView(this);
@@ -345,16 +343,10 @@ void HVACControl::updateFromSettings(float newTemp, int newHumidity, float newPr
 }
 
 void HVACControl::changeAirDirection(int angle) {
-    airDirectionLabel->setText(QString("Текущее направление: %1°").arg(angle)); // Обновляем метку с направлением
+    airDirectionLabel->setText(QString("Текущее направление: %1°").arg(angle)); // Обновляем метку
     qDebug() << "Изменено направление подачи воздуха на:" << angle << "градусов.";
 }
 
-/**
- * @brief Главная функция приложения.
- * @param argc Количество аргументов командной строки.
- * @param argv Аргументы командной строки.
- * @return Код завершения приложения.
- */
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
