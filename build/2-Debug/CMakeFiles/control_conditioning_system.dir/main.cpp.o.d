@@ -345,4 +345,6 @@ CMakeFiles/control_conditioning_system.dir/main.cpp.o: \
  /usr/include/x86_64-linux-gnu/qt5/QtCore/qtextstream.h \
  /usr/include/x86_64-linux-gnu/qt5/QtCore/qset.h \
  /usr/include/x86_64-linux-gnu/qt5/QtCore/qcontiguouscache.h \
+ /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QSlider \
+ /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qslider.h \
  /home/ssv/code/control_conditioning_system/build/2-Debug/control_conditioning_system_autogen/include/main.moc

@@ -10,6 +10,7 @@
 #include <QDialog>
 #include <QMessageBox>
 #include <QDebug>
+#include <QSlider> // Подключение QSlider
 
 class ResolutionDialog : public QDialog {
     Q_OBJECT
@@ -19,35 +20,30 @@ public:
         setWindowTitle("Выбор разрешения");
         setModal(true);
 
-        // Установка флагов окна для управления видом
         setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
         QVBoxLayout *layout = new QVBoxLayout(this);
 
-        // Кнопка для 1024x768
         QPushButton *res1Button = new QPushButton("1024x768", this);
         connect(res1Button, &QPushButton::clicked, this, [this]() {
             emit resolutionChosen(1024, 768);
-            accept(); // Закрывает диалог после выбора
+            accept();
         });
 
-        // Кнопка для 800x600
         QPushButton *res2Button = new QPushButton("800x600", this);
         connect(res2Button, &QPushButton::clicked, this, [this]() {
             emit resolutionChosen(800, 600);
-            accept(); // Закрывает диалог после выбора
+            accept();
         });
 
         layout->addWidget(res1Button);
         layout->addWidget(res2Button);
-
         setLayout(layout);
     }
 
 signals:
     void resolutionChosen(int width, int height);
 };
-
 
 class SettingsDialog : public QDialog {
     Q_OBJECT
@@ -69,7 +65,6 @@ public:
         layout->addWidget(new QLabel("Установить Давление:"));
         layout->addWidget(pressureInput);
 
-        // Кнопка для обновления значений
         QPushButton *updateButton = new QPushButton("Обновить значения", this);
         connect(updateButton, &QPushButton::clicked, this, &SettingsDialog::updateValues);
         layout->addWidget(updateButton);
@@ -79,7 +74,6 @@ public:
 
     void updateValues() {
         bool tempOk, humidityOk, pressureOk;
-
         float tempValue = temperatureInput->text().toFloat(&tempOk);
         int humidityValue = humidityInput->text().toInt(&humidityOk);
         float pressureValue = pressureInput->text().toFloat(&pressureOk);
@@ -98,20 +92,7 @@ public:
             return;
         }
 
-        // Уведомляем об обновлении значений в настройках
         emit valuesUpdated(tempValue, humidityValue, pressureValue);
-    }
-
-    float getTemperature() const {
-        return temperatureInput->text().toFloat();
-    }
-
-    int getHumidity() const {
-        return humidityInput->text().toInt();
-    }
-
-    float getPressure() const {
-        return pressureInput->text().toFloat();
     }
 
 signals:
@@ -134,6 +115,7 @@ private slots:
     void changeScaleTemperature(const QString &scale);
     void changeScalePressure(const QString &scale);
     void updateFromSettings(float temp, int humidity, float pressure);
+    void changeAirDirection(int angle); // Новый слот для изменения направления воздуха
 
 private:
     QString unittemperature = "°C";
@@ -151,6 +133,8 @@ private:
     QGraphicsView *graphicsView;
     QGraphicsScene *scene;
     SettingsDialog *settingsDialog;
+    QSlider *airDirectionSlider; // Слайдер для управления направлением
+    QLabel *airDirectionLabel; // Метка для отображения направления
 
     void updateLabels(double temp, int humidity, float pressure, const QString &scaleT, const QString &scaleP);
     void convertTemperature(const QString &toScale);
@@ -159,7 +143,7 @@ private:
 
 HVACControl::HVACControl(int width, int height, QWidget *parent)
     : QMainWindow(parent), acStatus(false) {
-    setFixedSize(width, height); // Установка фиксированного размера окна
+    setFixedSize(width, height);
 
     QWidget *centralWidget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(centralWidget);
@@ -182,9 +166,19 @@ HVACControl::HVACControl(int width, int height, QWidget *parent)
     connect(pressureScaleCombo, &QComboBox::currentTextChanged, this, &HVACControl::changeScalePressure);
     layout->addWidget(pressureScaleCombo);
 
-    toggleButton = new QPushButton("Turn On AC", this);
-    layout->addWidget(toggleButton);
+    toggleButton = new QPushButton("Включить кондиционер", this);
     connect(toggleButton, &QPushButton::clicked, this, &HVACControl::toggleAC);
+    layout->addWidget(toggleButton);
+
+    // Новая часть: настройка слайдера для направления воздуха
+    airDirectionSlider = new QSlider(Qt::Horizontal, this);
+    airDirectionSlider->setRange(0, 360); // Устанавливаем диапазон от 0 до 360 градусов
+    connect(airDirectionSlider, &QSlider::valueChanged, this, &HVACControl::changeAirDirection);
+    layout->addWidget(new QLabel("Направление подачи воздуха (градусы):", this)); // Метка
+    layout->addWidget(airDirectionSlider); // Добавляем слайдер
+
+    airDirectionLabel = new QLabel("Текущее направление: 0°", this); // Метка для отображения текущего направления
+    layout->addWidget(airDirectionLabel);
 
     graphicsView = new QGraphicsView(this);
     scene = new QGraphicsScene(this);
@@ -203,12 +197,10 @@ HVACControl::HVACControl(int width, int height, QWidget *parent)
 
 void HVACControl::toggleAC() {
     acStatus = !acStatus;
-    toggleButton->setText(acStatus ? "Turn Off AC" : "Turn On AC");
+    toggleButton->setText(acStatus ? "Выключить кондиционер" : "Включить кондиционер");
 }
 
 void HVACControl::changeScaleTemperature(const QString &scale) {
-    qDebug() << "Температура1:" << QString::number(temp);
-
     if (scale == "Celsius") {
         convertTemperature("°C");
     } else if (scale == "Fahrenheit") {
@@ -216,8 +208,6 @@ void HVACControl::changeScaleTemperature(const QString &scale) {
     } else if (scale == "Kelvin") {
         convertTemperature("K");
     }
-
-    qDebug() << "Температура2:" << QString::number(temp);
 }
 
 void HVACControl::convertTemperature(const QString &toScale) {
@@ -275,27 +265,28 @@ void HVACControl::convertPressure(const QString &toScale) {
 }
 
 void HVACControl::updateLabels(double temp, int humidity, float pressure, const QString &scaleT, const QString &scaleP) {
-    qDebug() << "Updating labels with Temperature:" << temp << "Humidity:" << humidity << "Pressure:" << pressure << "Scale:" << scaleT << "Scale:" << scaleP;
-
     temperatureLabel->setText(QString("Температура: %1 %2").arg(temp, 0, 'f', 2).arg(scaleT));
     humidityLabel->setText(QString("Влажность: %1 %").arg(humidity));
     pressureLabel->setText(QString("Давление: %1 %2").arg(pressure, 0, 'f', 2).arg(scaleP));
 }
 
 void HVACControl::updateFromSettings(float newTemp, int newHumidity, float newPressure) {
-    temp = newTemp; // Записываем значение из диалога настроек
+    temp = newTemp;
     humidity = newHumidity;
     pressure = newPressure;
     updateLabels(temp, humidity, pressure, unittemperature, unitpressure);
 }
 
+void HVACControl::changeAirDirection(int angle) {
+    airDirectionLabel->setText(QString("Текущее направление: %1°").arg(angle)); // Обновляем метку с направлением
+    qDebug() << "Изменено направление подачи воздуха на:" << angle << "градусов.";
+}
+
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
-    // Создаем и показываем диалоговое окно разрешения
     ResolutionDialog resDialog;
     QObject::connect(&resDialog, &ResolutionDialog::resolutionChosen, [&](int width, int height) {
-        // Создаем окно HVACControl с выбранным разрешением
         HVACControl *window = new HVACControl(width, height);
         window->show();
     });
