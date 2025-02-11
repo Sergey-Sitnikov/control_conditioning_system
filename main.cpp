@@ -11,13 +11,51 @@
 #include <QMessageBox>
 #include <QDebug>
 
+class ResolutionDialog : public QDialog {
+    Q_OBJECT
+
+public:
+    ResolutionDialog(QWidget *parent = nullptr) : QDialog(parent) {
+        setWindowTitle("Выбор разрешения");
+        setModal(true);
+
+        // Установка флагов окна для управления видом
+        setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+
+        QVBoxLayout *layout = new QVBoxLayout(this);
+
+        // Кнопка для 1024x768
+        QPushButton *res1Button = new QPushButton("1024x768", this);
+        connect(res1Button, &QPushButton::clicked, this, [this]() {
+            emit resolutionChosen(1024, 768);
+            accept(); // Закрывает диалог после выбора
+        });
+
+        // Кнопка для 800x600
+        QPushButton *res2Button = new QPushButton("800x600", this);
+        connect(res2Button, &QPushButton::clicked, this, [this]() {
+            emit resolutionChosen(800, 600);
+            accept(); // Закрывает диалог после выбора
+        });
+
+        layout->addWidget(res1Button);
+        layout->addWidget(res2Button);
+
+        setLayout(layout);
+    }
+
+signals:
+    void resolutionChosen(int width, int height);
+};
+
+
 class SettingsDialog : public QDialog {
     Q_OBJECT
 
 public:
     SettingsDialog(QWidget *parent = nullptr) : QDialog(parent) {
         setWindowTitle("Настройки");
-        setModal(false); // Убедитесь, что окно не является модальным
+        setModal(false);
         QVBoxLayout *layout = new QVBoxLayout(this);
 
         temperatureInput = new QLineEdit(this);
@@ -69,7 +107,7 @@ public:
     }
 
     int getHumidity() const {
-        return humidityInput->text().toFloat();
+        return humidityInput->text().toInt();
     }
 
     float getPressure() const {
@@ -89,7 +127,7 @@ class HVACControl : public QMainWindow {
     Q_OBJECT
 
 public:
-    HVACControl(QWidget *parent = nullptr);
+    HVACControl(int width, int height, QWidget *parent = nullptr);
 
 private slots:
     void toggleAC();
@@ -119,7 +157,10 @@ private:
     void convertPressure(const QString &toScale);
 };
 
-HVACControl::HVACControl(QWidget *parent) : QMainWindow(parent), acStatus(false) {
+HVACControl::HVACControl(int width, int height, QWidget *parent)
+    : QMainWindow(parent), acStatus(false) {
+    setFixedSize(width, height); // Установка фиксированного размера окна
+
     QWidget *centralWidget = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(centralWidget);
 
@@ -151,9 +192,8 @@ HVACControl::HVACControl(QWidget *parent) : QMainWindow(parent), acStatus(false)
     layout->addWidget(graphicsView);
 
     setCentralWidget(centralWidget);
-    resize(1024, 768);
 
-    // Создаем и показываем диалоговое окно настроек при запуске
+    // Создаем и показываем диалоговое окно настроек
     settingsDialog = new SettingsDialog(this);
     settingsDialog->show();
 
@@ -251,8 +291,17 @@ void HVACControl::updateFromSettings(float newTemp, int newHumidity, float newPr
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    HVACControl window;
-    window.show();
+
+    // Создаем и показываем диалоговое окно разрешения
+    ResolutionDialog resDialog;
+    QObject::connect(&resDialog, &ResolutionDialog::resolutionChosen, [&](int width, int height) {
+        // Создаем окно HVACControl с выбранным разрешением
+        HVACControl *window = new HVACControl(width, height);
+        window->show();
+    });
+
+    resDialog.exec(); // Ожидаем, пока пользователь выберет разрешение
+
     return app.exec();
 }
 

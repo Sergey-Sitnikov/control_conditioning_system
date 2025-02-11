@@ -722,6 +722,9 @@ CMakeFiles/control_conditioning_system.dir/main.cpp.o: /home/ssv/code/control_co
   /usr/include/x86_64-linux-gnu/qt5/QtGui/qtextformat.h \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QDialog \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qdialog.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QMessageBox \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qmessagebox.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qdialog.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/QDebug \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qdebug.h \
   /usr/include/x86_64-linux-gnu/qt5/QtCore/qtextstream.h \
@@ -1070,6 +1073,8 @@ CMakeFiles/control_conditioning_system.dir/mainwindow.cpp.o: /home/ssv/code/cont
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qtextstream.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qdebug.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QMessageBox:
 
 /usr/include/x86_64-linux-gnu/qt5/QtGui/qtextcursor.h:
 
@@ -1600,6 +1605,8 @@ control_conditioning_system_autogen/EWIEGA46WW/moc_mainwindow.cpp:
 /usr/include/c++/13/bits/functional_hash.h:
 
 /usr/include/c++/13/pstl/execution_defs.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qmessagebox.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qobject_impl.h:
 
