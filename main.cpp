@@ -8,6 +8,7 @@
 #include <QGraphicsView>
 #include <QLineEdit>
 #include <QDialog>
+#include <QMessageBox>
 #include <QDebug>
 
 class SettingsDialog : public QDialog {
@@ -39,15 +40,35 @@ public:
     }
 
     void updateValues() {
+        bool tempOk, humidityOk, pressureOk;
+
+        float tempValue = temperatureInput->text().toFloat(&tempOk);
+        int humidityValue = humidityInput->text().toInt(&humidityOk);
+        float pressureValue = pressureInput->text().toFloat(&pressureOk);
+
+        // Проверка валидности введенных данных
+        if (!tempOk || tempValue < -50 || tempValue > 70) {
+            QMessageBox::warning(this, "Неверный ввод", "Пожалуйста, введите допустимую температуру.");
+            return;
+        }
+        if (!humidityOk || humidityValue < 0 || humidityValue > 100) {
+            QMessageBox::warning(this, "Неверный ввод", "Пожалуйста, введите допустимый процент влажности.");
+            return;
+        }
+        if (!pressureOk || pressureValue < 0) {
+            QMessageBox::warning(this, "Неверный ввод", "Пожалуйста, введите допустимое давление.");
+            return;
+        }
+
         // Уведомляем об обновлении значений в настройках
-        emit valuesUpdated(getTemperature(), getHumidity(), getPressure());
+        emit valuesUpdated(tempValue, humidityValue, pressureValue);
     }
 
     float getTemperature() const {
         return temperatureInput->text().toFloat();
     }
 
-    float getHumidity() const {
+    int getHumidity() const {
         return humidityInput->text().toFloat();
     }
 
@@ -56,7 +77,7 @@ public:
     }
 
 signals:
-    void valuesUpdated(float temp, float humidity, float pressure);
+    void valuesUpdated(float temp, int humidity, float pressure);
 
 private:
     QLineEdit *temperatureInput;
@@ -74,12 +95,13 @@ private slots:
     void toggleAC();
     void changeScaleTemperature(const QString &scale);
     void changeScalePressure(const QString &scale);
-    void updateFromSettings(float temp, float humidity, float pressure);
+    void updateFromSettings(float temp, int humidity, float pressure);
 
 private:
     QString unittemperature = "°C";
     double temp = 0;
     QLabel *temperatureLabel;
+    int humidity = 0;
     QLabel *humidityLabel;
     QString unitpressure = "Pa";
     double pressure = 0;
@@ -92,7 +114,7 @@ private:
     QGraphicsScene *scene;
     SettingsDialog *settingsDialog;
 
-    void updateLabels(double temp, float humidity, float pressure, const QString &scaleT, const QString &scaleP);
+    void updateLabels(double temp, int humidity, float pressure, const QString &scaleT, const QString &scaleP);
     void convertTemperature(const QString &toScale);
     void convertPressure(const QString &toScale);
 };
@@ -102,8 +124,7 @@ HVACControl::HVACControl(QWidget *parent) : QMainWindow(parent), acStatus(false)
     QVBoxLayout *layout = new QVBoxLayout(centralWidget);
 
     temperatureLabel = new QLabel("Температура: " + QString::number(temp) + " " + unittemperature, this);
-    humidityLabel = new QLabel("Влажность: 0 %", this);
-//    pressureLabel = new QLabel("Давление: 0 Pa", this);
+    humidityLabel = new QLabel("Влажность: " + QString::number(humidity) + " %", this);
     pressureLabel = new QLabel("Давление: " + QString::number(pressure) + " " + unitpressure, this);
 
     layout->addWidget(temperatureLabel);
@@ -156,8 +177,6 @@ void HVACControl::changeScaleTemperature(const QString &scale) {
         convertTemperature("K");
     }
 
-   // updateLabels(temp, humidityLabel->text().split(" ")[1].toFloat(),
-   //              pressure, unittemperature, unitpressure);
     qDebug() << "Температура2:" << QString::number(temp);
 }
 
@@ -188,51 +207,44 @@ void HVACControl::convertTemperature(const QString &toScale) {
             unittemperature = "°F";
         }
     }
-    updateLabels(temp, humidityLabel->text().split(" ")[1].toFloat(),
-                pressure, unittemperature, unitpressure);
+    updateLabels(temp, humidity, pressure, unittemperature, unitpressure);
 }
 
 void HVACControl::changeScalePressure(const QString &scale) {
-
     if (scale == "Pascals") {
         convertPressure("Pa");
     } else if (scale == "mmHg") {
         convertPressure("mmHg");
     }
-
-//    updateLabels(temp, humidityLabel->text().split(" ")[1].toFloat(),
- //                pressure, unittemperature, unitpressure);
 }
 
 void HVACControl::convertPressure(const QString &toScale) {
-    double originalPrtessure = pressure;
+    double originalPressure = pressure;
     if (unitpressure == "Pa") {
         if (toScale == "mmHg") {
-            pressure = originalPrtessure / 133.322;
+            pressure = originalPressure / 133.322;
             unitpressure = "mmHg";
         }
     } else if (unitpressure == "mmHg") {
         if (toScale == "Pa") {
-            pressure = originalPrtessure * 133.322;
+            pressure = originalPressure * 133.322;
             unitpressure = "Pa";
         }
     }
-    updateLabels(temp, humidityLabel->text().split(" ")[1].toFloat(),
-                 pressure, unittemperature, unitpressure);
+    updateLabels(temp, humidity, pressure, unittemperature, unitpressure);
 }
 
-void HVACControl::updateLabels(double temp, float humidity, float pressure, const QString &scaleT, const QString &scaleP) {
+void HVACControl::updateLabels(double temp, int humidity, float pressure, const QString &scaleT, const QString &scaleP) {
     qDebug() << "Updating labels with Temperature:" << temp << "Humidity:" << humidity << "Pressure:" << pressure << "Scale:" << scaleT << "Scale:" << scaleP;
 
     temperatureLabel->setText(QString("Температура: %1 %2").arg(temp, 0, 'f', 2).arg(scaleT));
-    humidityLabel->setText(QString("Влажность: %1 %").arg(humidity, 0, 'f', 2));
-//    pressureLabel->setText(QString("Давление: %1 Pa").arg(pressure, 0, 'f', 2));
+    humidityLabel->setText(QString("Влажность: %1 %").arg(humidity));
     pressureLabel->setText(QString("Давление: %1 %2").arg(pressure, 0, 'f', 2).arg(scaleP));
 }
 
-void HVACControl::updateFromSettings(float newTemp, float humidity, float newPressure) {
+void HVACControl::updateFromSettings(float newTemp, int newHumidity, float newPressure) {
     temp = newTemp; // Записываем значение из диалога настроек
-   // unittemperature = "°C";
+    humidity = newHumidity;
     pressure = newPressure;
     updateLabels(temp, humidity, pressure, unittemperature, unitpressure);
 }
