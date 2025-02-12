@@ -202,35 +202,38 @@ HVACControl::HVACControl(int width, int height, QString theme, QWidget *parent)
 
     airDirectionSlider = new QSlider(Qt::Horizontal, this);
     airDirectionSlider->setRange(0, 180);
+    airDirectionSlider->setFixedHeight(50); // Устанавливаем фиксированную высоту на 50 пикселей
     connect(airDirectionSlider, &QSlider::valueChanged, this, &HVACControl::changeAirDirection);
     // Горизонтальный слайдер
     airDirectionSlider->setStyleSheet("QSlider::groove:horizontal {"
                                       "background: lightgray;"
-                                      "height: 10px;"
+                                      "height: 50px;"
                                       "}"
                                       "QSlider::handle:horizontal {"
                                       "background: green;"
                                       "border: 1px solid #5c5c5c;"
                                       "width: 50px;"  // Ширина бегунка
                                       "height: 50px;" // Высота бегунка
-                                      "margin: -20px 0;" // Обратите внимание, чтобы обеспечить корректное визуальное отображение
                                       "}");
 
     // Вертикальный слайдер
     airDirectionSliderVertical = new QSlider(Qt::Vertical, this);
-    airDirectionSliderVertical->setRange(0, 90);
+    airDirectionSliderVertical->setRange(0, 90); // Устанавливаем диапазон от 0 до 90
+    airDirectionSliderVertical->setFixedWidth(50); // Устанавливаем фиксированную ширину на 50 пикселей
     connect(airDirectionSliderVertical, &QSlider::valueChanged, this, &HVACControl::changeAirDirection);
+
+    // Установка стилей для слайдера
     airDirectionSliderVertical->setStyleSheet("QSlider::groove:vertical {"
-                                              "background: lightgray;"
-                                              "width: 10px;"  // Ширина грива, меняйте в зависимости от дизайна
+                                              "background: lightgray;" // Цвет фона грива
+                                              "width: 50px;"          // Устанавливаем ширину грива
                                               "}"
                                               "QSlider::handle:vertical {"
-                                              "background: green;"
-                                              "border: 1px solid #5c5c5c;"
-                                              "width: 50px;"   // Ширина бегунка равна высоте
-                                              "height: 50px;"  // Высота бегунка
-                                              "margin: -20px 0;" // Обратите внимание на корректные отступы
+                                              "background: green;"    // Цвет бегунка
+                                              "border: 1px solid #5c5c5c;" // Граница бегунка
+                                              "width: 50px;"         // Ширина бегунка
+                                              "height: 50px;"        // Высота бегунка
                                               "}");
+
 
 
 
